@@ -1,15 +1,58 @@
-import requests 
-import pandas as pd 
+import requests
+import json
 
-# Specify endpoint URL 
-url = "https://educationdata.urban.org/api/v1/schools/ccd/directory/2020/"
+years = range(2011, 2021)
+unitid_filter = 139940
+data = {}
 
-# Loop over pages 
-response = requests.get(url).json()
-data = response["results"]
-while response["next"]:
-    response = requests.get(response["next"]).json()
-    data.extend(response["results"])
+for year in years:
+    page = 1
+    year_data = []
+    while True:
+        url = f"https://educationdata.urban.org/api/v1/college-university/ipeds/fall-enrollment/{year}/undergraduate/age/sex/?page={page}"
+        print(f"Year {year}, Page {page}: Fetching data from {url}")
+        
+        try:
+            # Make the API request
+            response = requests.get(url)
+            response.raise_for_status()  # Raise an error for bad responses
+            
+            # Parse the response JSON
+            response_data = response.json()
+            
+            # Debugging: Print the number of records returned in the current page
+            records_on_page = len(response_data.get('results', []))
+            print(f"Year {year}, Page {page}: Retrieved {records_on_page} records")
+            
+            # Filter data by unitid and keep only the necessary fields
+            filtered_data = [
+                {"unitid": record["unitid"], "year": year, "level_of_study": record["level_of_study"]}
+                for record in response_data["results"]
+                if record["unitid"] == unitid_filter
+            ]
+            
+            # Add the filtered data to year_data
+            year_data.extend(filtered_data)
+            
+            # Check if there's a next page
+            if not response_data.get("next"):
+                break  # Exit the loop if there's no next page
+            
+            # Increment page number for the next request
+            page += 1
+        
+        except requests.exceptions.RequestException as e:
+            print(f"Error fetching data for Year {year}, Page {page}: {e}")
+            break  # Exit the loop on error
 
-# Convert response to pandas dataframe 
-df = pd.DataFrame(data)
+    # Add the year_data for the current year to the main data dictionary
+    data[year] = year_data
+    print(f"Year {year}: Retrieved {len(year_data)} records")
+
+# Save all data to a JSON file after processing all years
+with open('filtered_data_2011_2020.json', 'w') as f:
+    json.dump(data, f, indent=4)
+
+# Print the total number of records saved
+total_records = sum(len(records) for records in data.values())
+print(f"Total records saved: {total_records}")
