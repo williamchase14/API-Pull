@@ -1,0 +1,56 @@
+#PART I
+
+# Load necessary libraries
+library(educationdata)
+
+# Retrieve filtered data
+df <- get_education_data(level = 'college-university', 
+                         source = 'ipeds', 
+                         topic = 'fall-enrollment', 
+                         subtopic = list('race', 'sex'),
+                         filters = list(year = 2012:2022,
+                                        unitid=139940), 
+                         add_labels = TRUE)
+
+
+
+# R script PART II
+
+# Load data library
+library(educationdata)
+
+# Load chart/graph library
+library(ggplot2)
+
+# Retrieve data
+df <- get_education_data(
+  level = 'college-university',
+  source = 'ipeds',
+  topic = 'fall-enrollment',
+  subtopic = list('race', 'sex'),
+  filters = list(year = 2013:2022, unitid = 139940),
+  add_labels = TRUE
+)
+
+# Filter data for relevant columns
+df_filtered <- df[, c("year", "level_of_study", "enrollment_fall")]
+
+# Check and label level_of_study for clear chart labels
+# Adjust based on actual values found in df
+df_filtered <- df[df$level_of_study %in% c("Undergraduate", "Graduate"), ]
+
+# Check for missing values and correct labels
+summary(df_filtered)
+table(df_filtered$level_of_study)
+
+# Create the bar chart
+ggplot(df_filtered, aes(x = factor(year), y = enrollment_fall, fill = level_of_study)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(
+    title = "Fall Enrollment at GSU (2012-2022)",
+    x = "Year",
+    y = "Enrollment Count",
+    fill = "Level of Study"
+  ) +
+  theme_minimal() +
+  scale_fill_manual(values = c("Undergraduate" = "#1f77b4", "Graduate" = "#ff7f0e"))
