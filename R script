@@ -1,3 +1,12 @@
+#download our R package. To install educationdata, run:
+
+install.packages('educationdata')
+
+#For more information, or to troubleshoot, please visit github.com/UrbanInstitute/education-data-package-r.
+
+
+
+
 #PART I
 
 # Load necessary libraries
