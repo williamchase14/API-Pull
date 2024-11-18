@@ -1,0 +1,29 @@
+#This script merges several big CSV's
+#There's 2 sets of CSV's
+
+
+# script 1 - merges the Race/sex files
+# the files are on my desktop but can be accessed here: "https://educationdata.urban.org/api/v1/college-university/ipeds/fall-enrollment/2015/undergraduate/race/sex/"
+import pandas as pd
+import glob
+
+# Path to your CSV files
+csv_files = glob.glob(r'C:\Users\willi\Desktop\Age CSV files\*.csv')
+
+# Create an empty DataFrame to hold all combined data
+combined_data = pd.DataFrame()
+
+# Loop through each file, read it, and append it to the combined DataFrame
+for file in csv_files:
+    data = pd.read_csv(file)
+    combined_data = pd.concat([combined_data, data], ignore_index=True)
+
+# Save the combined data to a new CSV file
+# the files are on my desktop 
+combined_data.to_csv(r'C:\Users\willi\Desktop\combined_summary.csv', index=False)
+
+print("The combined data has been saved to 'combined_summary.csv'")
+
+
+#Script 2 - merges the Age/sex files
+#same thing as above but change the file path. Files can be found here: "https://educationdata.urban.org/api/v1/college-university/ipeds/fall-enrollment/2008/undergraduate/age/sex/"
