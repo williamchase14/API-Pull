@@ -1,0 +1,15 @@
+import requests 
+import pandas as pd 
+
+# Specify endpoint URL 
+url = "https://educationdata.urban.org/api/v1/schools/ccd/directory/2020/"
+
+# Loop over pages 
+response = requests.get(url).json()
+data = response["results"]
+while response["next"]:
+    response = requests.get(response["next"]).json()
+    data.extend(response["results"])
+
+# Convert response to pandas dataframe 
+df = pd.DataFrame(data)
